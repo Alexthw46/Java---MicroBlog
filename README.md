@@ -10,7 +10,7 @@ Gli	utenti	possono	‘seguire’ i post di	altri	utenti.	 Una	persona	è	rappres
 rete	sociale.	
 
 Gli	utenti	della	rete	sociale	non	possono	seguire	se	stessi.	
-##Parte	1
+## Parte	1
 Si	richiede	di	progettare,	realizzare	e	documentare	il	tipo	di	dato	Post per	rappresentare	un	post.	Un post	è	
 descritto	da	un	insieme	di	informazioni:
 
@@ -25,7 +25,7 @@ motivazioni delle	scelte	effettuate. Possono	essere	aggiunte	altre	informazioni	
 la	scelta.
 Si	definisca	l’implementazione	del	tipo	di	dato	Post.
 
-###Parte	2
+## Parte	2
 Si	 richiede	 di	 progettare,	 realizzare	 e	 documentare	 il	 tipo	 di	 dato	 SocialNetwork per	 operare	 sulla	 rete	
 sociale	MicroBlog. Come	struttura	di	implementazione	della	rete	sociale	si richiede	di	utilizzare
 Map<String,	Set<String>>
@@ -54,7 +54,7 @@ metodo.
 Si	 definisca	 la	 specifica	 completa	 del	 tipo	 di	 dato	 SocialNetwork	 fornendo le	 motivazioni delle	 scelte	
 effettuate.	Devono essere	aggiunti	altri	metodi	motivando	opportunamente	la	scelta.
 Si	definisca	l’implementazione	del	tipo	di	dato	SocialNetwork.
-##Parte	3
+## Parte	3
 Si	 richiede	 di	 discutete	 come	 sia	 possibile	 progettare una	 estensione	 gerarchica	 del tipo	 di	 dato	
 SocialNetwork che	permetta	di	introdurre	un criterio	per	segnalare	contenuti offensivi	presenti	nella	rete	
 sociale.	Si	presenti	la	progettazione	e	realizzazione	di	almeno	una	soluzione.
