@@ -1,20 +1,23 @@
 package aq.progetto;
 
+import aq.progetto.interfaces.IPost;
+
 import javax.naming.LimitExceededException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Post {
+public class Post implements IPost {
 
     final int id;
-    String author;
+    final String author;
     String text;
     List<String> likes;
     Timestamp creationTime;
 
 
     public Post(int id, String author, String text) throws NullPointerException, LimitExceededException, IllegalArgumentException {
+
         if (author == null || text == null) {
             throw new NullPointerException();
         }
@@ -31,23 +34,30 @@ public class Post {
         }
 
         this.id = id;
-        this.likes = new ArrayList<>();
+        this.text= text;
         this.author = author;
-        if (text.length() < 140){
-            this.text =text;
-        }
         this.creationTime = new Timestamp(System.currentTimeMillis());
+        this.likes = new ArrayList<>();
+
     }
 
-    int getId(){
+    public int getId(){
         return this.id;
     }
 
-    String getAuthor(){
+    public String getAuthor(){
         return this.author;
     }
 
-    List<String> getLikes(){
+    public String getText(){
+        return this.text;
+    }
+
+    public Timestamp getTimestamp() {
+        return this.creationTime;
+    }
+
+    public List<String> getLikers(){
         return this.likes;
     }
 
@@ -71,13 +81,13 @@ public class Post {
     // EFFECTS: restituisce una rappresentazione dell'istanza (this) come stringa
     public String toString() {
         return "\"" +
-                this.text +
+                getText() +
                 "\" - " +
-                this.author +
+                getAuthor() +
                 ", " +
                 this.creationTime.toString() +
                 ", " +
-                this.id;
+                getId();
     }
 
 }
