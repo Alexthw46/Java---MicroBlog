@@ -1,5 +1,5 @@
 # PROGRAMMAZIONE	II	 - A.A.	2020-21
-Primo	Progetto Intermedio
+
 Il	progetto	ha	l’obiettivo	di	applicare	i	concetti	e	le	tecniche	di	programmazione	Object-Oriented esaminate	
 durante	il	corso.	Lo	scopo	del	progetto	è	lo	sviluppo	di	un	componente	software	di	supporto	alla	gestione	e	
 l’analisi	di	una	rete	sociale	(SocialNetwork) denominata	MicroBlog.
@@ -12,12 +12,16 @@ rete	sociale.
 Gli	utenti	della	rete	sociale	non	possono	seguire	se	stessi.	
 ## Parte	1
 Si	richiede	di	progettare,	realizzare	e	documentare	il	tipo	di	dato	Post per	rappresentare	un	post.	Un post	è	
-descritto	da	un	insieme	di	informazioni:
+descritto da	un	insieme	di informazioni:
 
 • id:	identificatore	univoco	del	post
+
 • author:	utente	della	rete	sociale che	ha	scritto	il	post
+
 • text:	testo	(massimo	140	caratteri)	del	post
+
 • timestamp:	data	e	ora	di	invio	del	post
+
 • likes:		lista	degli	utenti	della	rete	sociale che	hanno messo un	like	al	post
 
 Si	 definisca	 la	 specifica	 completa	 del	 tipo	 di	 dato	 Post,	 introducendo	 i	 relativi	 metodi	 e	 fornendo le	
@@ -58,6 +62,7 @@ Si	definisca	l’implementazione	del	tipo	di	dato	SocialNetwork.
 Si	 richiede	 di	 discutete	 come	 sia	 possibile	 progettare una	 estensione	 gerarchica	 del tipo	 di	 dato	
 SocialNetwork che	permetta	di	introdurre	un criterio	per	segnalare	contenuti offensivi	presenti	nella	rete	
 sociale.	Si	presenti	la	progettazione	e	realizzazione	di	almeno	una	soluzione.
+
 Nota.	
 Per	 valutare	 il	 comportamento	 di	 tutte	 l’implementazioni proposte si	 realizzi una	 batteria	 di	 test.	 Le	
 implementazioni	proposte	devono	superare	tutte	le	batteria	di	test	progettate

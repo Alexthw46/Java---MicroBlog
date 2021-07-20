@@ -9,10 +9,9 @@ public class MicroBlog {
     static String currentUser;
     static SocialNetwork network;
 
-    public static void main(String[] args) throws LimitExceededException {
+    public static void main(String[] args) throws LimitExceededException,NumberFormatException {
 
         network = new SocialNetwork();
-        network.init();
 
         System.out.print("Welcome to Micro-Blog\n");
 
@@ -36,14 +35,20 @@ public class MicroBlog {
                 network.createPost(currentUser, message);
                 continue;
             }
-            if (command.equals("follow")) {
-                continue;
-            }
-            if (command.equals("like")) {
+            if (command.equals("follow") || command.equals("like")) {
+                int id = 0;
+                try {
+                    id = input.nextInt();
+                } catch (NumberFormatException e){
+                    e.printStackTrace();
+                }
+                network.likePost(currentUser, id);
                 continue;
             }
             if (command.equals("list")) {
-                network.getPosts();
+                for ( Post p : network.getAllPosts()){
+                    System.out.print(p.toString() + "\n");
+                }
                 continue;
             }
             if (command.equals("quit")) break;
@@ -55,6 +60,7 @@ public class MicroBlog {
 
         input.close();
         System.out.print("Goodbye!\n");
+
     }
 
 }
