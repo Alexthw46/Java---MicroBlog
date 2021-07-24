@@ -4,6 +4,7 @@ import aq.progetto.interfaces.ISocialBlog;
 
 import javax.naming.LimitExceededException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class SocialNetwork implements ISocialBlog {
 
@@ -47,8 +48,7 @@ public class SocialNetwork implements ISocialBlog {
     //Map tra ogni utente e corrispondente lista di utenti seguiti
     private final Map<String, Set<String>> FollowMap;
 
-    static private final Random random = new Random();
-
+    private int lastId;
 
     public SocialNetwork(){
 
@@ -56,7 +56,15 @@ public class SocialNetwork implements ISocialBlog {
         SocialMap = new HashMap<>();
         PostMap = new HashMap<>();
         FollowMap = new HashMap<>();
+        lastId = 0;
+    }
 
+    /**
+     *
+     * EFFECTS: restituisce l'id dell'ultimo post pubblicato sul social network
+     */
+    public int getLastId() {
+        return this.lastId;
     }
 
     /**
@@ -87,7 +95,7 @@ public class SocialNetwork implements ISocialBlog {
     public static Map<String, Set<String>> guessFollowers(List<Post> postList) throws NullPointerException {
 
         if (postList == null) {
-            throw new NullPointerException();
+            throw new NullPointerException("Argument was null");
         }
 
         Map<String, Set<String>> followers = new HashMap<>();
@@ -102,6 +110,15 @@ public class SocialNetwork implements ISocialBlog {
 
         return followers;
 
+    }
+
+    /**
+     *
+     * EFFECTS: crea una hashmap che rappresenta la rete sociale degli utenti relativa all'intero SocialNetwork
+     *
+     * */
+    public Map<String, Set<String>> guessFollowers(){
+        return guessFollowers(getAllPosts());
     }
 
     /**
@@ -124,39 +141,41 @@ public class SocialNetwork implements ISocialBlog {
     public static List<String> influencers(Map<String, Set<String>> followMap) throws NullPointerException {
 
         if (followMap == null) {
-            throw new NullPointerException();
+            throw new NullPointerException("Argument was null");
         }
-
-        //Lista di output
-        List<String> influencers = new ArrayList<>();
 
         //Mappa tra utenti e numero di followers
         Map<String, Integer> followers = new HashMap<>();
 
-        for( Map.Entry<String,Set<String>> userFollows : followMap.entrySet() ) {
+        //navigo fra le entry della followMap, mappa tra utenti e set di utenti seguiti, per costruire followers
+        for ( Map.Entry<String,Set<String>> userFollows : followMap.entrySet() ){
 
-            String follower = userFollows.getKey();
+            //per ogni entry di FollowMap, prendo gli utenti seguiti
             Set<String> followed = userFollows.getValue();
 
-                for (String user : followed){
+            //safeguard in caso di mappe non correttamente inizializzate
+            if (followed == null){
+                continue;
+            }
 
-                    followers.putIfAbsent(user, 0);
+            //ogni utente seguito viene inizializzato nella mappa e viene incrementato il suo counter di followers
+            for (String user : followed){
 
-                    followers.put(user,followers.get(user)+1);
+                followers.putIfAbsent(user, 0);
+                followers.put(user,followers.get(user)+1);
 
-                }
+            }
 
         }
 
+        //converto followers in una Lista di coppie <String, Integer> per poterla ordinare
         List<Map.Entry<String, Integer>> sortedEntryList =  new ArrayList<>(followers.entrySet());
 
         //ordino la lista per ordine decrescente di follower
         sortedEntryList.sort(Map.Entry.comparingByValue(Comparator.reverseOrder()));
 
-        //infine aggiungo i nomi degli influencer alla mia lista di influencer.
-        for (Map.Entry<String, Integer> i : sortedEntryList) {
-            influencers.add(i.getKey());
-        }
+        //infine la converto nella lista di output con i primi 10 influencer.
+        List<String> influencers = sortedEntryList.stream().limit(11).map(Map.Entry::getKey).collect(Collectors.toList());
 
         return influencers;
     }
@@ -180,7 +199,7 @@ public class SocialNetwork implements ISocialBlog {
     public static Set<String> getMentionedUsers(List<Post> postList) throws NullPointerException {
 
         if (postList == null) {
-            throw new NullPointerException();
+            throw new NullPointerException("Parameter was null");
         }
 
         Set<String> users = new HashSet<>();
@@ -201,7 +220,7 @@ public class SocialNetwork implements ISocialBlog {
      * */
     public List<Post> writtenBy(String username) throws NullPointerException {
         if (username == null) {
-            throw new NullPointerException();
+            throw new NullPointerException("username was null");
         }
         return SocialMap.get(username);
     }
@@ -216,7 +235,7 @@ public class SocialNetwork implements ISocialBlog {
     public static List<Post> writtenBy(List<Post> postList, String username) throws NullPointerException {
 
         if (postList == null || username == null) {
-            throw new NullPointerException();
+            throw new NullPointerException("One or both arguments are null");
         }
 
         List<Post> filteredList = new ArrayList<>();
@@ -240,10 +259,10 @@ public class SocialNetwork implements ISocialBlog {
     public List<Post> containing(List<String> words) throws NullPointerException, IllegalArgumentException {
 
         if (words == null) {
-            throw new NullPointerException();
+            throw new NullPointerException("words filter was null");
         }
         if (words.size() == 0){
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("words filter was empty");
         }
 
         List<Post> filteredList = new ArrayList<>();
@@ -278,23 +297,19 @@ public class SocialNetwork implements ISocialBlog {
      public void createPost(String currentUser, String text) throws NullPointerException, IllegalArgumentException, LimitExceededException {
 
         if (currentUser == null || text == null){
-            throw new NullPointerException();
+            throw new NullPointerException("text or user are null");
         }
 
         if (currentUser.trim().isEmpty() || text.trim().isEmpty()) {
             // il nome dell'autore e il messaggio non possono essere vuoti nè contenere solo spazi
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("text or user are blank");
         }
 
         if (text.length() > 140){
-            throw new LimitExceededException();
+            throw new LimitExceededException("text limit for posts is 140");
         }
 
-        int id = random.nextInt(Integer.MAX_VALUE - 1 );
-
-        while (PostMap.get(id) != null){
-            id = random.nextInt(Integer.MAX_VALUE - 1 );
-        }
+        int id = ++lastId;
 
         Post temp = new Post(id,currentUser,text);
 
@@ -320,7 +335,7 @@ public class SocialNetwork implements ISocialBlog {
     /**
      *
      * REQUIRES: user != null ^ id > 0 ^ PostMap.get(id) != null ^ PostMap.get(id).getAuthor != user
-     * THROWS: NullPointerException se user == null, IllegalArgumentException se id <= 0,
+     * THROWS: NullPointerException se user == null, IllegalArgumentException se id <= 0 v PostMap.containsKey(id) == false,
      * IllegalStateException se user.equals(PostMap.get(id).getAuthor())
      * EFFECTS: se il post corrispondente all'id passato è presente nel SocialNetwork, viene messo un like al post da
      * parte dall'utente corrente e viene aggiornata la mappa delle relazioni. Se l'utente non ha mai postato, vengono
@@ -331,22 +346,17 @@ public class SocialNetwork implements ISocialBlog {
     public void likePost(String user, int id) throws NullPointerException, IllegalArgumentException, IllegalStateException {
 
         if (user == null){
-            throw new NullPointerException();
+            throw new NullPointerException("username was null");
         }
 
-        if (id <= 0 ){
-            throw new IllegalArgumentException();
+        if ( id <= 0 || !PostMap.containsKey(id) ){
+            throw new IllegalArgumentException("id given not valid");
         }
 
         Post post = PostMap.get(id);
 
-        if (post == null){
-            System.out.print("Permission denied: post id not found");
-            return;
-        }
-
         if (post.getAuthor().equals(user)){
-            throw new IllegalStateException();
+            throw new IllegalStateException("Users can't like/follow themselves");
         }
 
         //se user non ha ancora pubblicato un post, inizializzo le entry delle map
@@ -361,6 +371,52 @@ public class SocialNetwork implements ISocialBlog {
             FollowMap.get(user).add(post.getAuthor());
         }
 
+    }
+
+    /**
+     *
+     * REQUIRES: id > 0 ^ user != null ^ newText != null ^ user not blank ^ newText not blank ^ PostMap.containsKey(id) ^ user == PostMap.get(id).getAuthor()
+     * THROWS: NullPointerException se user == null v newText == null,
+     * IllegalArgumentException se id <= 0 v user o newText sono composti solo da spazi,
+     * LimitExceededException se newText.lenght() > 140,
+     * IllegalStateException se user != PostMap.get(id).getAuthor()
+     * EFFECTS: modifica il testo del post relativo a id in newText se l'utente è l'autore del post e newText rispetta il formato
+     *
+     * */
+    public void editPost(String user, int id, String newText) throws LimitExceededException, IllegalStateException, IllegalArgumentException, NullPointerException {
+
+        if (user == null || newText == null){
+            throw new NullPointerException("new text or user are null");
+        }
+
+        if (user.trim().isEmpty() || newText.trim().isEmpty()) {
+            // il nome dell'autore e il messaggio non possono essere vuoti nè contenere solo spazi
+            throw new IllegalArgumentException("new text or user are blank");
+        }
+
+        if (id <= 0 || !PostMap.containsKey(id)){
+            throw new IllegalArgumentException("id not valid");
+        }
+
+        if (newText.length() > 140){
+            throw new LimitExceededException("text limit for posts is 140");
+        }
+
+        Post post = PostMap.get(id);
+
+        // di base solo l'autore può modificare i propri post
+        if (authorizePostEdit(user,post)){
+
+            post.editText(user,newText);
+
+        }else{
+            throw new IllegalStateException("only the author can modify their posts");
+        }
+
+    }
+
+    protected boolean authorizePostEdit(String user, Post post) {
+        return user.equals(post.getAuthor());
     }
 
 }

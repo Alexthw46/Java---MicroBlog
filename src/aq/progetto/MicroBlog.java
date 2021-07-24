@@ -2,7 +2,9 @@ package aq.progetto;
 
 
 import javax.naming.LimitExceededException;
+import java.util.Map;
 import java.util.Scanner;
+import java.util.Set;
 
 public class MicroBlog {
 
@@ -26,7 +28,14 @@ public class MicroBlog {
 
         while (true){
 
-            System.out.print("What you want to do?\n" + "Command List: \n Post - Write new post \n List - List all posts\n");
+            System.out.print("What you want to do?\n" + "Command List: \n" +
+                    " Post - Write new post \n" +
+                    " List - List all posts\n" +
+                    " Like - Like the post with the given id\n"+
+                    " Logout - Change user or quit\n" +
+                    " Followmap - Print followmap\n" +
+                    " Influencers - Print influencers()\n"
+            );
 
             String command = input.nextLine();
 
@@ -51,11 +60,33 @@ public class MicroBlog {
                 }
                 continue;
             }
-            if (command.equals("quit")) break;
+            if (command.equals("logout")) {
+                System.out.print("Quit or change user?\n");
+                command = input.nextLine();
+                if (command.equals("quit")) break;
+                else {
+                    System.out.print("Log in with your username\n");
+                    currentUser = input.nextLine();
+                }
+            }
+            if (command.equals("followmap")){
+                Set<String> followers = network.guessFollowers().get(currentUser);
+
+                if (followers != null){
+
+                    for (String user : followers){
+                        System.out.print(user+"\n");
+                    }
+
+                }
+            }
+            if (command.equals("influencers")){
+                System.out.print("Most influent users:\n");
+                for (String user : network.influencers()){
+                    System.out.print(user+"\n");
+                }
+            }
         }
-
-
-
 
 
         input.close();
