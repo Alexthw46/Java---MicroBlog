@@ -6,6 +6,9 @@ import javax.naming.LimitExceededException;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static aq.progetto.Post.textCheck;
+import static aq.progetto.Post.usernameCheck;
+
 public class SocialNetwork implements ISocialBlog {
 
     /**
@@ -21,9 +24,9 @@ public class SocialNetwork implements ISocialBlog {
      * TYPICAL ELEMENT:
      * (
      *  {user_1, ..., user_n}
-     *  {post_1, ..., post_n}
      *  f: user -> {users} | f(user_1) = {user_i, ..., user_j}, ..., f(user_n) = {user_k, ..., user_h}
      *  f: user -> {posts} | f(user_1) = {post_i, ..., post_j}, ..., f(user_n) = {post_k, ..., post_h}
+     *  f: id -> post |  f(id_1) -> post_1, ..., f(id_n) -> post_n
      * )
      *
      * REP INVARIANT:
@@ -40,14 +43,15 @@ public class SocialNetwork implements ISocialBlog {
     private final Set<String> UserList;
 
     //Map tra utenti e post pubblicati
-    private final Map<String, List<Post>> SocialMap;
+    protected final Map<String, List<Post>> SocialMap;
 
     //Map tra id e post corrispondente per accesso veloce O(1)
-    private final Map<Integer, Post> PostMap;
+    protected final Map<Integer, Post> PostMap;
 
     //Map tra ogni utente e corrispondente lista di utenti seguiti
     private final Map<String, Set<String>> FollowMap;
 
+    //Identificatore unico dell'ultimo post pubblicato
     private int lastId;
 
     public SocialNetwork(){
@@ -57,6 +61,7 @@ public class SocialNetwork implements ISocialBlog {
         PostMap = new HashMap<>();
         FollowMap = new HashMap<>();
         lastId = 0;
+
     }
 
     /**
@@ -77,9 +82,11 @@ public class SocialNetwork implements ISocialBlog {
         List<Post> PostList = new ArrayList<>();
 
         for (String user : UserList) {
-            List<Post> i = SocialMap.get(user);
+            List<Post> i = writtenBy(user);
             PostList.addAll(i);
         }
+
+        PostList.sort(null);
 
         return PostList;
     }
@@ -98,12 +105,15 @@ public class SocialNetwork implements ISocialBlog {
             throw new NullPointerException("Argument was null");
         }
 
+        //mappa tra utenti e followers
         Map<String, Set<String>> followers = new HashMap<>();
 
+        //per ogni post nella lista, estraggo gli utenti che hanno messo like/seguito un altro
         for (Post p : postList){
 
+            //inizializza il set dei followers di author se necessario
             followers.putIfAbsent(p.getAuthor(), new HashSet<>());
-
+            //aggiunge i follower alla entry di author
             followers.get(p.getAuthor()).addAll(p.getLikes());
 
         }
@@ -335,7 +345,7 @@ public class SocialNetwork implements ISocialBlog {
     /**
      *
      * REQUIRES: user != null ^ id > 0 ^ PostMap.get(id) != null ^ PostMap.get(id).getAuthor != user
-     * THROWS: NullPointerException se user == null, IllegalArgumentException se id <= 0 v PostMap.containsKey(id) == false,
+     * THROWS: NullPointerException se user == null, IllegalArgumentException se id <= 0 v PostMap.containsKey(id) == false v user is blank,
      * IllegalStateException se user.equals(PostMap.get(id).getAuthor())
      * EFFECTS: se il post corrispondente all'id passato è presente nel SocialNetwork, viene messo un like al post da
      * parte dall'utente corrente e viene aggiornata la mappa delle relazioni. Se l'utente non ha mai postato, vengono
@@ -345,9 +355,8 @@ public class SocialNetwork implements ISocialBlog {
      * */
     public void likePost(String user, int id) throws NullPointerException, IllegalArgumentException, IllegalStateException {
 
-        if (user == null){
-            throw new NullPointerException("username was null");
-        }
+        //controllo che user non sia nè null nè vuoto
+        usernameCheck(user);
 
         if ( id <= 0 || !PostMap.containsKey(id) ){
             throw new IllegalArgumentException("id given not valid");
@@ -359,8 +368,8 @@ public class SocialNetwork implements ISocialBlog {
             throw new IllegalStateException("Users can't like/follow themselves");
         }
 
-        //se user non ha ancora pubblicato un post, inizializzo le entry delle map
-        if (!UserList.contains(user)){
+        //se user non ha ancora pubblicato nè seguito un post, inizializzo le entry delle map
+        if (!(UserList.contains(user) || FollowMap.containsKey(user))){
             SocialMap.put(user, new ArrayList<>());
             FollowMap.put(user, new HashSet<>());
         }
@@ -385,37 +394,38 @@ public class SocialNetwork implements ISocialBlog {
      * */
     public void editPost(String user, int id, String newText) throws LimitExceededException, IllegalStateException, IllegalArgumentException, NullPointerException {
 
-        if (user == null || newText == null){
-            throw new NullPointerException("new text or user are null");
-        }
+        //controllo la validità di user e newText
+        if ( usernameCheck(user) && textCheck(newText) ) {
 
-        if (user.trim().isEmpty() || newText.trim().isEmpty()) {
-            // il nome dell'autore e il messaggio non possono essere vuoti nè contenere solo spazi
-            throw new IllegalArgumentException("new text or user are blank");
-        }
+            //controllo che l'id sia valido ed esista un post correlato
+            if (id <= 0 || !PostMap.containsKey(id)) {
+                throw new IllegalArgumentException("id not valid");
+            }
 
-        if (id <= 0 || !PostMap.containsKey(id)){
-            throw new IllegalArgumentException("id not valid");
-        }
-
-        if (newText.length() > 140){
-            throw new LimitExceededException("text limit for posts is 140");
         }
 
         Post post = PostMap.get(id);
 
         // di base solo l'autore può modificare i propri post
-        if (authorizePostEdit(user,post)){
+        if (authorizePostAction(user,post)){
 
             post.editText(user,newText);
 
         }else{
+
             throw new IllegalStateException("only the author can modify their posts");
         }
 
     }
 
-    protected boolean authorizePostEdit(String user, Post post) {
+    /**
+     *
+     * REQUIRES: post != null ^ user != null
+     * EFFECTS: true se user è l'autore di Post, false altrimenti
+     *
+     * */
+
+    protected boolean authorizePostAction(String user, Post post) {
         return user.equals(post.getAuthor());
     }
 

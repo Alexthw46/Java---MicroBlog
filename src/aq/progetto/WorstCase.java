@@ -6,6 +6,8 @@ import java.util.ArrayList;
 public class WorstCase {
     static String currentUser;
     static SocialNetwork network;
+    static SocialNetworkWithReport moderatedNetwork;
+    static String over140 = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
 
     private static void sleeper() {
         try {
@@ -69,7 +71,7 @@ public class WorstCase {
         System.out.print("LimitExceededException testing\n");
 
         try {
-            network.createPost("over 140 chars","aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
+            network.createPost("over 140 chars",over140);
         }catch (LimitExceededException e){
             e.printStackTrace();
         }
@@ -211,7 +213,7 @@ public class WorstCase {
         System.out.println("LimitExceededException on editPost");
 
         try {
-            network.editPost(currentUser, network.getLastId(), "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
+            network.editPost(currentUser, network.getLastId(), over140);
         }catch (LimitExceededException e){
             e.printStackTrace();
         }
@@ -256,6 +258,217 @@ public class WorstCase {
         sleeper();
 
         System.out.println("SocialNetwork class testing ends here\n");
+
+        System.out.println("-----------------------------------------------------------"+
+                "-----------------------------------------------------------\n");
+
+        System.out.println("Testing the SocialNetworkWithReports class:\n");
+
+        sleeper();
+
+        System.out.println("NullPointerException on constructor");
+
+        try {
+            moderatedNetwork = new SocialNetworkWithReport(null);
+        }catch (NullPointerException e){
+            e.printStackTrace();
+        }
+
+        sleeper();
+
+        System.out.println("IllegalArgumentException on constructor");
+
+        try {
+            moderatedNetwork = new SocialNetworkWithReport("");
+        }catch (IllegalArgumentException e){
+            e.printStackTrace();
+        }
+
+        sleeper();
+
+        moderatedNetwork = new SocialNetworkWithReport(currentUser);
+
+        System.out.println("NullPointerException on addAdmin");
+
+        try{
+            moderatedNetwork.addAdmin(currentUser,null);
+        }catch (NullPointerException e){
+            e.printStackTrace();
+        }
+
+        try{
+            moderatedNetwork.addAdmin(null,"new");
+        }catch (NullPointerException e){
+            e.printStackTrace();
+        }
+
+        sleeper();
+        System.out.println("IllegalArgumentException on addAdmin");
+
+        try{
+            moderatedNetwork.addAdmin("","new");
+        }catch (IllegalArgumentException e){
+            e.printStackTrace();
+        }
+
+        try{
+            moderatedNetwork.addAdmin(currentUser,"");
+        }catch (IllegalArgumentException e){
+            e.printStackTrace();
+        }
+
+        sleeper();
+        System.out.println("SecurityException on AddAdmin");
+        try{
+            moderatedNetwork.addAdmin("new",currentUser);
+        }catch (SecurityException e){
+            e.printStackTrace();
+        }
+
+        sleeper();
+        System.out.println("Creating Posts for testing of deletePost and reports\n");
+
+        try{
+            moderatedNetwork.createPost(currentUser, "hello i'm the first admin of this site");
+            moderatedNetwork.createPost("Mark", "hi, i just registered");
+            moderatedNetwork.createPost("Luke", "i can't wait to be reported, mr admin");
+            for (Post stmp : moderatedNetwork.getAllPosts()){
+                System.out.println(stmp.toString());
+            }
+        }catch (NullPointerException | IllegalArgumentException | LimitExceededException e){
+            e.printStackTrace();
+        }
+
+        sleeper();
+        System.out.println("NullPointerException on reportPost");
+
+        try{
+            moderatedNetwork.reportPost(null, 3, "null username");
+        }catch (NullPointerException e){
+            e.printStackTrace();
+        }
+
+        try{
+            moderatedNetwork.reportPost("null reason", 3, null);
+        }catch (NullPointerException e){
+            e.printStackTrace();
+        }
+
+        sleeper();
+        System.out.println("IllegalArgumentException on reportPost");
+
+        try{
+            moderatedNetwork.reportPost("", 3, "invalid username");
+        }catch (IllegalArgumentException e){
+            e.printStackTrace();
+        }
+
+        try{
+            moderatedNetwork.reportPost("invalid reason", 3, "");
+        }catch (IllegalArgumentException e){
+            e.printStackTrace();
+        }
+
+        try{
+            moderatedNetwork.reportPost(currentUser, 0, "invalid id");
+        }catch (IllegalArgumentException e){
+            e.printStackTrace();
+        }
+
+        try{
+            moderatedNetwork.reportPost(currentUser, 10, "id not found");
+        }catch (IllegalArgumentException e){
+            e.printStackTrace();
+        }
+
+        sleeper();
+        System.out.println("LimitExceededException on reportPost");
+
+        try{
+            moderatedNetwork.reportPost(currentUser, 3, over140);
+        }catch (LimitExceededException e){
+            e.printStackTrace();
+        }
+
+        sleeper();
+
+        System.out.println("Generating reports for testing");
+
+        try {
+
+            moderatedNetwork.reportPost(currentUser, 3, "test report");
+            moderatedNetwork.reportPost("Mark", 3 , "Luke wanted it");
+
+        }catch (LimitExceededException| NullPointerException| IllegalArgumentException e){
+            e.printStackTrace();
+        }
+
+        sleeper();
+
+        System.out.println("NullPointerException on listReports");
+
+        try{
+            moderatedNetwork.listReports(null);
+        }catch (NullPointerException e){
+            e.printStackTrace();
+        }
+
+        sleeper();
+        System.out.println("IllegalArgumentException on listReports");
+
+        try{
+            moderatedNetwork.listReports("");
+        }catch (IllegalArgumentException e) {
+            e.printStackTrace();
+        }
+
+        sleeper();
+        System.out.println("SecurityException on listReports");
+
+        try {
+            moderatedNetwork.listReports("Mark");
+        }catch (SecurityException e){
+            e.printStackTrace();
+        }
+
+        sleeper();
+        System.out.println("NullPointerException on deletePost");
+
+        try{
+            moderatedNetwork.deletePost(null, 3);
+        }catch (NullPointerException e){
+            e.printStackTrace();
+        }
+
+        sleeper();
+        System.out.println("IllegalArgumentException on deletePost");
+
+        try{
+            moderatedNetwork.deletePost("", 3);
+        }catch (IllegalArgumentException e){
+            e.printStackTrace();
+        }
+
+        try{
+            moderatedNetwork.deletePost("id not valid", 0);
+        }catch (IllegalArgumentException e){
+            e.printStackTrace();
+        }
+
+        try{
+            moderatedNetwork.deletePost("id not found", 10);
+        }catch (IllegalArgumentException e){
+            e.printStackTrace();
+        }
+
+        sleeper();
+        System.out.println("SecurityException on deletePost");
+
+        try{
+            moderatedNetwork.deletePost("Luke", 2);
+        }catch (SecurityException e){
+            e.printStackTrace();
+        }
 
     }
 
