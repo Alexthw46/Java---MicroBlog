@@ -3,7 +3,7 @@ package aq.progetto.interfaces;
 import java.sql.Timestamp;
 import java.util.Set;
 
-public interface IPost {
+public interface IPost{
 
     /**
     *REQUIRES: true

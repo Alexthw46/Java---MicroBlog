@@ -7,7 +7,7 @@ import java.sql.Timestamp;
 import java.util.HashSet;
 import java.util.Set;
 
-public class Post implements IPost {
+public class Post implements IPost, Comparable<Post> {
 
     private final int id;
     private final String author;
@@ -39,21 +39,17 @@ public class Post implements IPost {
 
     public Post(int id, String author, String text) throws NullPointerException, LimitExceededException, IllegalArgumentException {
 
-        if (author == null || text == null) {
-            throw new NullPointerException("author or text was null");
+        //controllo i dati di input e sollevo eccezioni se necessario
+        if (usernameCheck(author) && textCheck(text)) {
+
+            if ( id <= 0 ) {
+                // l'id deve essere maggiore di 0;
+                throw new IllegalArgumentException("id was zero or negative");
+            }
+
         }
 
-        if (id <= 0 || author.trim().isEmpty() || text.trim().isEmpty()) {
-            // l'id deve essere maggiore di 0;
-            // il nome dell'autore e il messaggio non possono essere vuoti nè contenere solo spazi
-            throw new IllegalArgumentException("author or text was blank or id was zero or negative");
-        }
-
-        if (text.length() > 140) {
-            // limite di caratteri del post
-            throw new LimitExceededException("text limit of 140 chars exceeded");
-        }
-
+        //inizializzo il post con i dati in input e il tempo di creazione
         this.id = id;
         this.text = text;
         this.author = author;
@@ -85,33 +81,62 @@ public class Post implements IPost {
     }
 
     /**
+     * THROWS: NullPointerException se username == null,
+     *  IllegalArgumentException se username è composto solo da spazi o vuoto
+     *
+     * EFFECTS: Controlla se il parametro è valido per l'uso con il dato Post
+     *
+     */
+    public static boolean usernameCheck(String username) throws NullPointerException, IllegalArgumentException {
+        if (username == null) {
+            // il nome dell'autore non può essere null
+            throw new NullPointerException("username was null");
+        }
+        if (username.trim().isEmpty()) {
+            // il nome dell'autore non può essere vuoto nè contenere solo spazi
+            throw new IllegalArgumentException("username was blank");
+        }
+        return true;
+    }
+
+    /**
+     * THROWS: NullPointerException se text == null,
+     *  IllegalArgumentException se text è composto solo da spazi o vuoto,
+     *  LimitExceededException se text è composto da più di 140 caratteri
+     * EFFECTS: Controlla se il parametro è valido per l'uso con il dato Post
+     *
+     */
+    public static boolean textCheck(String text) throws LimitExceededException, IllegalArgumentException, NullPointerException {
+
+        if (text == null) {
+            // text non può essere null
+            throw new NullPointerException("text was null");
+        }
+
+        if (text.trim().isEmpty()) {
+            // il messaggio non può essere vuoto nè contenere solo spazi
+            throw new IllegalArgumentException("text was blank");
+        }
+
+        if (text.length() > 140) {
+            // limite di caratteri del post
+            throw new LimitExceededException("text limit of 140 chars exceeded");
+        }
+        return true;
+    }
+
+    /**
      *
      * REQUIRES: user != null ^ newText != null ^ user not blank ^ newText not blank ^ user == this.author
      * THROWS: NullPointerException se user == null v newText == null,
      * IllegalArgumentException se user o newText sono composti solo da spazi,
      * LimitExceededException se newText.lenght() > 140,
-     * SecurityException se user != this.author
      * EFFECTS: modifica this.text in newText se l'utente è l'autore del post e newText rispetta il formato
      *
      * */
     public void editText(String user, String newText) throws LimitExceededException, NullPointerException, IllegalArgumentException {
 
-        if (user == null || newText == null) {
-            throw new NullPointerException("user or new text was null");
-        }
-
-        if (user.trim().isEmpty() || newText.trim().isEmpty()) {
-            // l'id deve essere maggiore di 0;
-            // il nome dell'autore e il messaggio non possono essere vuoti nè contenere solo spazi
-            throw new IllegalArgumentException("author or text was blank");
-        }
-
-        if (newText.length() > 140) {
-            // limite di caratteri del post
-            throw new LimitExceededException("text limit of 140 chars exceeded");
-        }
-
-        this.text = newText;
+        if ( usernameCheck(user) && textCheck(newText) ) this.text = newText;
 
     }
 
@@ -166,13 +191,23 @@ public class Post implements IPost {
      */
     public String toString() {
         return getAuthor() +
-                " wrote: \n" +
+                " wrote: \n\"" +
                 getText() +
-                "\n" +
-                " at " +
+                "\"\n" +
+                "at " +
                 this.creationTime.toString() +
                 "\nID: " +
-                getId();
+                getId() + "\n";
+    }
+
+    /**
+     *
+     * EFFECTS: if this.id > otherPost.getId() returns 1 else 0, for ordering Post elements
+     *
+     * */
+    @Override
+    public int compareTo(Post otherPost) {
+        return Integer.compare(this.id, otherPost.getId());
     }
 
 }
