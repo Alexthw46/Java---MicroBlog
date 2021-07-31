@@ -261,8 +261,8 @@ public class SocialNetwork implements ISocialBlog {
 
     /**
      *
-     *REQUIRES: words != null ^ words.lenght() > 0
-     *THROWS: NullPointerException se words == null, IllegalArgumentException se words.lenght() == 0
+     *REQUIRES: words != null ^ words.length() > 0
+     *THROWS: NullPointerException se words == null, IllegalArgumentException se words.length() == 0
      *EFFECTS: restituisce la lista dei post presenti nel SocialNetwork in cui appare almeno una delle parole contenuta in Words
      *
      */
@@ -296,9 +296,9 @@ public class SocialNetwork implements ISocialBlog {
 
     /**
      *
-     * REQUIRES: currentUser != null ^ text != null ^ text,currentUser not blank ^ 0 > text.lenght() > 140
+     * REQUIRES: currentUser != null ^ text != null ^ text, currentUser not blank ^ 0 > text.length() > 140
      * THROWS: NullPointerException se currentUser == null v text == null, Illegal Argument Exception se sono vuoti,
-     * LimitExceededException se text.lenght() > 140
+     * LimitExceededException se text.length() > 140
      * MODIFIES: this
      * EFFECTS: genera l'id univoco e crea il dato Post, se è il primo post dell'autore lo aggiunge alla UserList
      * e inizializza le entry di SocialMap e FollowMap corrispondenti, infine lo inserisce nelle map SocialMap e PostMap di this.
@@ -347,13 +347,13 @@ public class SocialNetwork implements ISocialBlog {
      * REQUIRES: user != null ^ id > 0 ^ PostMap.get(id) != null ^ PostMap.get(id).getAuthor != user
      * THROWS: NullPointerException se user == null, IllegalArgumentException se id <= 0 v PostMap.containsKey(id) == false v user is blank,
      * IllegalStateException se user.equals(PostMap.get(id).getAuthor())
-     * EFFECTS: se il post corrispondente all'id passato è presente nel SocialNetwork, viene messo un like al post da
-     * parte dall'utente corrente e viene aggiornata la mappa delle relazioni. Se l'utente non ha mai postato, vengono
+     * EFFECTS: se il post corrispondente all'id passato è presente nel SocialNetwork, viene aggiunto o rimosso il like al post da
+     * parte dall'utente corrente e aggiornata la FollowMap. Se l'utente non ha mai postato, vengono anche
      * inizializzate le relative entry in SocialMap e FollowMap.
-     * MODIFIES: this
+     * MODIFIES: this, PostMap.get(id).likes
      *
      * */
-    public void likePost(String user, int id) throws NullPointerException, IllegalArgumentException, IllegalStateException {
+    public void toggleLikePost(String user, int id) throws NullPointerException, IllegalArgumentException, IllegalStateException {
 
         //controllo che user non sia nè null nè vuoto
         usernameCheck(user);
@@ -374,10 +374,13 @@ public class SocialNetwork implements ISocialBlog {
             FollowMap.put(user, new HashSet<>());
         }
 
-        //aggiungo user ai like di Post
-        if (post.addLike(user)) {
-            //aggiungo l'autore del post alla mappa dei seguiti di user (solo se il like non è già presente)
+        //aggiungo/rimuovo user ai like di Post
+        if (post.toggleLike(user)) {
+            //aggiungo l'autore del post alla mappa dei seguiti di user (se il like non era presente)
             FollowMap.get(user).add(post.getAuthor());
+        }else {
+            //rimuovo l'autore del post dalla mappa dei seguiti di user (se il like era presente)
+            FollowMap.get(user).remove(post.getAuthor());
         }
 
     }
@@ -387,7 +390,7 @@ public class SocialNetwork implements ISocialBlog {
      * REQUIRES: id > 0 ^ user != null ^ newText != null ^ user not blank ^ newText not blank ^ PostMap.containsKey(id) ^ user == PostMap.get(id).getAuthor()
      * THROWS: NullPointerException se user == null v newText == null,
      * IllegalArgumentException se id <= 0 v user o newText sono composti solo da spazi,
-     * LimitExceededException se newText.lenght() > 140,
+     * LimitExceededException se newText.length() > 140,
      * IllegalStateException se user != PostMap.get(id).getAuthor()
      * EFFECTS: modifica il testo del post relativo a id in newText se l'utente è l'autore del post e newText rispetta il formato
      *

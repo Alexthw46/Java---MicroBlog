@@ -23,7 +23,7 @@ public class Post implements IPost, Comparable<Post> {
      * TYPICAL ELEMENT:
      *
      * (id, author, text, creationTime, [like_1, ..., like_n])
-     *  Il tipo di dato Post è una quintupla il cui quinto elemento è una lista di stringhe contenente gli utenti che
+     *  Il tipo di dato Post è una quintupla il cui quinto elemento è un set di stringhe contenente gli utenti che
      *  hanno messo like a this
      *
      * REP INVARIANT:
@@ -96,6 +96,7 @@ public class Post implements IPost, Comparable<Post> {
             // il nome dell'autore non può essere vuoto nè contenere solo spazi
             throw new IllegalArgumentException("username was blank");
         }
+
         return true;
     }
 
@@ -160,29 +161,27 @@ public class Post implements IPost, Comparable<Post> {
      *  IllegalArgumentException se user è composto solo da spazi,
      *  IllegalStateException se user sta tentando di mettere like a sè stesso
      *MODIFIES: this.likes
-     *EFFECTS: aggiunge user alla lista dei likes di this se user != this.author e user non è già presente in likes
-     * @return false se user era già presente in this.likes, else true
+     *EFFECTS: aggiunge user alla lista dei likes di this se user != this.author, se user è già presente in likes invece
+     * viene rimosso
+     * @return true se il like viene aggiunto, false se viene rimosso
      */
-    public boolean addLike(String user) throws NullPointerException, IllegalArgumentException, IllegalStateException {
+    public boolean toggleLike(String user) throws NullPointerException, IllegalArgumentException, IllegalStateException {
 
-        if (user == null) {
-            throw new NullPointerException("user was null");
-        }
-
-        if (user.trim().isEmpty()) {
-            throw new IllegalArgumentException("user was blank");
-        }
+        usernameCheck(user);
 
         if (user.equals(this.author)) {
             throw new IllegalStateException("users can't follow themselves");
         }
 
-        // il like non viene messo se già presente
-        if (likes.contains(user)) return false;
+        // il like viene rimosso se già presente
+        if (likes.contains(user)) {
+            this.likes.remove(user);
+            return false;
+        } else {
+            this.likes.add(user);
+            return true;
+        }
 
-        this.likes.add(user);
-
-        return true;
     }
 
     /**

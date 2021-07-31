@@ -48,13 +48,14 @@ nella	rete	sociale
 menzionati	(inclusi)	 nella	lista	parametro	del	metodo
 5. public	List<Post>	writtenBy(String	username) che	restituisce	la	lista	dei	post	effettuati	dall’utente	
 nella	rete sociale	il	cui	nome	è	dato	dal	parametro	username
-2
+
 6. public	 List<Post>	 writtenBy(List<Post>	 ps,	 String	 username) che	 restituisce	 la	 lista	 dei	 post	
 effettuati	dall’utente	il	cui	nome	è	dato	dal	parametro	username presenti	nella	lista parametro	del	
 metodo
 7. public	List<Post>	containing(List<String>	words) che	restituisce	la	lista	dei	post presenti	nella	rete	
 sociale	 che includono	 almeno	 una	 delle	 parole	 presenti	 nella	 lista	 delle	 parole	 argomento	 del	
 metodo.
+
 Si	 definisca	 la	 specifica	 completa	 del	 tipo	 di	 dato	 SocialNetwork	 fornendo le	 motivazioni delle	 scelte	
 effettuate.	Devono essere	aggiunti	altri	metodi	motivando	opportunamente	la	scelta.
 Si	definisca	l’implementazione	del	tipo	di	dato	SocialNetwork.

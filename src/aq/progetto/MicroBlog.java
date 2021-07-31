@@ -2,7 +2,6 @@ package aq.progetto;
 
 
 import javax.naming.LimitExceededException;
-import java.util.Map;
 import java.util.Scanner;
 import java.util.Set;
 
@@ -51,7 +50,7 @@ public class MicroBlog {
                 } catch (NumberFormatException e){
                     e.printStackTrace();
                 }
-                network.likePost(currentUser, id);
+                network.toggleLikePost(currentUser, id);
                 continue;
             }
             if (command.equals("list")) {

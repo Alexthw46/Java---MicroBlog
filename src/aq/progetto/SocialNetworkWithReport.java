@@ -79,10 +79,10 @@ public class SocialNetworkWithReport extends SocialNetwork{
 
     /**
      *
-     * REQUIRES: currentUser != null ^ text != null ^ text,currentUser not blank ^ 0 > text.lenght() > 140
+     * REQUIRES: currentUser != null ^ text != null ^ text,currentUser not blank ^ 0 > text.length() > 140
      * THROWS: NullPointerException se username == null v reason == null,
      * Illegal Argument Exception se sono vuoti v id <= 0 v id !∈ PostMap,
-     * LimitExceededException se reason.lenght() > 140
+     * LimitExceededException se reason.length() > 140
      * MODIFIES: this.ReportsMap
      * EFFECTS: Crea una segnalazione relativa al post corrispondente a id e la aggiunge
      * */
@@ -111,7 +111,7 @@ public class SocialNetworkWithReport extends SocialNetwork{
      * EFFECTS: Stampa la lista delle segnalazioni per ogni post, strumento per gli admin
      *
      * */
-    public void listReports(String username){
+    public void printReports(String username){
 
         usernameCheck(username);
 
@@ -120,10 +120,10 @@ public class SocialNetworkWithReport extends SocialNetwork{
 
             for (Map.Entry<Integer,List<Report>> PostReports : ReportsMap.entrySet()){
 
-                System.out.print("Reported post #"+ PostReports.getKey() + " by " + PostReports.getValue().size() +" users\n");
+                System.out.print("Reported post #"+ PostReports.getKey() + " by " + PostReports.getValue().size() +" users:\n");
 
                 for (Report rep : PostReports.getValue()){
-                    System.out.print("Reported by " + rep.reporter + "\nreason : " + rep.reason +"\n" );
+                    System.out.print("Reported by " + rep.getReporter() + "\nreason : " + rep.getReason() +"\n" );
                 }
 
             }
@@ -191,8 +191,8 @@ public class SocialNetworkWithReport extends SocialNetwork{
      * */
     private static class Report{
 
-        public final String reporter;
-        public final String reason;
+        private final String reporter;
+        private final String reason;
 
         public Report(String author, String reason) throws LimitExceededException {
 
@@ -202,6 +202,14 @@ public class SocialNetworkWithReport extends SocialNetwork{
             reporter = author;
             this.reason = reason;
 
+        }
+
+        public String getReason() {
+            return reason;
+        }
+
+        public String getReporter(){
+            return reporter;
         }
 
     }

@@ -7,7 +7,7 @@ public class WorstCase {
     static String currentUser;
     static SocialNetwork network;
     static SocialNetworkWithReport moderatedNetwork;
-    static String over140 = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
+    static final String over140 = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
 
     private static void sleeper() {
         try {
@@ -17,7 +17,7 @@ public class WorstCase {
         }
     }
 
-    public static void main(String[] args) throws LimitExceededException,NumberFormatException {
+    public static void main(String[] args) throws LimitExceededException, SecurityException, NullPointerException, IllegalStateException, IllegalArgumentException{
 
         network = new SocialNetwork();
         currentUser = "tester_0";
@@ -223,7 +223,7 @@ public class WorstCase {
         System.out.println("NullPointerException on likePost");
 
         try {
-            network.likePost(null,1);
+            network.toggleLikePost(null,1);
         } catch (NullPointerException e){
             e.printStackTrace();
         }
@@ -233,13 +233,13 @@ public class WorstCase {
         System.out.println("IllegalArgumentException on likePost");
 
         try {
-            network.likePost("negative id",-1);
+            network.toggleLikePost("negative id",-1);
         } catch (IllegalArgumentException e){
             e.printStackTrace();
         }
 
         try {
-            network.likePost("not found id",1);
+            network.toggleLikePost("not found id",1);
         } catch (IllegalArgumentException e){
             e.printStackTrace();
         }
@@ -250,7 +250,7 @@ public class WorstCase {
 
         try {
             // the post used for testing editPost is used to test likePost
-            network.likePost(currentUser, network.getLastId());
+            network.toggleLikePost(currentUser, network.getLastId());
         } catch (IllegalStateException e){
             e.printStackTrace();
         }
@@ -332,8 +332,8 @@ public class WorstCase {
             moderatedNetwork.createPost(currentUser, "hello i'm the first admin of this site");
             moderatedNetwork.createPost("Mark", "hi, i just registered");
             moderatedNetwork.createPost("Luke", "i can't wait to be reported, mr admin");
-            for (Post stmp : moderatedNetwork.getAllPosts()){
-                System.out.println(stmp.toString());
+            for (Post stamp : moderatedNetwork.getAllPosts()){
+                System.out.println(stamp.toString());
             }
         }catch (NullPointerException | IllegalArgumentException | LimitExceededException e){
             e.printStackTrace();
@@ -408,7 +408,7 @@ public class WorstCase {
         System.out.println("NullPointerException on listReports");
 
         try{
-            moderatedNetwork.listReports(null);
+            moderatedNetwork.printReports(null);
         }catch (NullPointerException e){
             e.printStackTrace();
         }
@@ -417,7 +417,7 @@ public class WorstCase {
         System.out.println("IllegalArgumentException on listReports");
 
         try{
-            moderatedNetwork.listReports("");
+            moderatedNetwork.printReports("");
         }catch (IllegalArgumentException e) {
             e.printStackTrace();
         }
@@ -426,7 +426,7 @@ public class WorstCase {
         System.out.println("SecurityException on listReports");
 
         try {
-            moderatedNetwork.listReports("Mark");
+            moderatedNetwork.printReports("Mark");
         }catch (SecurityException e){
             e.printStackTrace();
         }
@@ -473,3 +473,4 @@ public class WorstCase {
     }
 
 }
+
